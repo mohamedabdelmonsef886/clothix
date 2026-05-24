@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Orders - Clothix{% endblock %}
+
+{% block content %}
+<section class="orders-section">
+    <div class="container">
+        <div class="orders-header">
+            <h1>My Orders</h1>
+            <p>View and track your orders</p>
+        </div>
+
+        {% if orders %}
+        <div class="orders-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order Number</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Payment</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>{{ order.order_number }}</td>
+                        <td>{{ order.created_at|date:"M d, Y" }}</td>
+                        <td>${{ order.total|floatformat:2 }}</td>
+                        <td>
+                            <span class="status-badge status-{{ order.status }}">
+                                {{ order.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="payment-badge {% if order.payment_status %}paid{% else %}pending{% endif %}">
+                                {% if order.payment_status %}Paid{% else %}Pending{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'products:order_track' order.id %}" class="track-btn">
+                                Track Order
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="no-orders">
+            <i class="fas fa-shopping-bag"></i>
+            <h2>No Orders Yet</h2>
+            <p>You haven't placed any orders yet.</p>
+            <a href="{% url 'products:product_list' %}" class="shop-now-btn">
+                Start Shopping
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

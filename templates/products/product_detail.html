@@ -1,0 +1,330 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} - Clothix{% endblock %}
+
+
+{% block content %}
+<!-- Product Detail Section -->
+<section class="product-detail-section">
+    <div class="container">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a href="/">Home</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{% url 'products:product_list' %}">Products</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="#">{{ product.category.name }}</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>{{ product.name }}</span>
+        </div>
+
+        <!-- Product Main Info -->
+        <div class="product-detail-layout">
+            <!-- Product Images Gallery -->
+            <div class="product-gallery">
+                <div class="main-image">
+                    <img id="mainProductImage" src="{{ product.main_image.url }}" alt="{{ product.name }}">
+                </div>
+                {% if product_images|length > 1 %}
+                <div class="thumbnail-images">
+                    {% for img in product_images %}
+                    <div class="thumbnail" onclick="changeImage('{{ img.image.url }}')">
+                        <img src="{{ img.image.url }}" alt="{{ product.name }}">
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Product Info -->
+            <div class="product-info-detail">
+                {% if product.brand %}
+                <div class="product-brand">{{ product.brand.name }}</div>
+                {% endif %}
+                
+                <h1>{{ product.name }}</h1>
+                
+                <!-- Rating -->
+                <div class="product-rating-detail">
+                    <div class="stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                    <span class="rating-count">({{ reviews_count }} reviews)</span>
+                </div>
+                
+                <!-- Price -->
+                <div class="product-price-detail">
+                    <span class="current-price">${{ product.price }}</span>
+                    {% if product.compare_price %}
+                    <span class="original-price">${{ product.compare_price }}</span>
+                    <span class="discount-badge">-{{ product.discount_percentage }}%</span>
+                    {% endif %}
+                </div>
+                
+                <!-- Short Description -->
+                <div class="product-short-description">
+                    <p>{{ product.short_description|default:product.description|truncatewords:30 }}</p>
+                </div>
+                
+                <!-- Variants (Size) -->
+                {% if variants %}
+                <div class="product-variants">
+                    <label>Size:</label>
+                    <div class="size-options">
+                        {% for variant in variants %}
+                        {% if variant.size %}
+                        <button class="size-option" data-size="{{ variant.size }}" data-stock="{{ variant.stock }}">
+                            {{ variant.size }}
+                        </button>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Quantity -->
+                <div class="product-quantity">
+                    <label>Quantity:</label>
+                    <div class="quantity-selector">
+                        <button class="qty-btn minus">-</button>
+                        <input type="number" id="quantity" value="1" min="1" max="{{ product.stock }}" class="quantity-input">
+                        <button class="qty-btn plus">+</button>
+                    </div>
+                    <span class="stock-status {% if product.stock > 0 %}in-stock{% else %}out-of-stock{% endif %}">
+                        {% if product.stock > 0 %}
+                        <i class="fas fa-check-circle"></i> In Stock ({{ product.stock }} available)
+                        {% else %}
+                        <i class="fas fa-times-circle"></i> Out of Stock
+                        {% endif %}
+                    </span>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="product-actions-detail">
+                    <button class="add-to-cart-detail" data-id="{{ product.id }}" {% if product.stock == 0 %}disabled{% endif %}>
+                        <i class="fas fa-shopping-bag"></i> Add to Cart
+                    </button>
+                    <button class="wishlist-detail" data-id="{{ product.id }}">
+                        <i class="far fa-heart"></i> Wishlist
+                    </button>
+                </div>
+                
+                <!-- Meta Info -->
+                <div class="product-meta">
+                    <p><strong>SKU:</strong> {{ product.sku }}</p>
+                    <p><strong>Category:</strong> <a href="#">{{ product.category.name }}</a></p>
+                    {% if product.tags %}
+                    <p><strong>Tags:</strong> {{ product.tags }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Share -->
+                <div class="product-share">
+                    <label>Share:</label>
+                    <div class="share-icons">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-pinterest"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Product Tabs -->
+        <div class="product-tabs">
+            <div class="tab-headers">
+                <button class="tab-btn active" data-tab="description">Description</button>
+                <button class="tab-btn" data-tab="specifications">Specifications</button>
+                <button class="tab-btn" data-tab="reviews">Reviews ({{ reviews_count }})</button>
+            </div>
+            
+            <div class="tab-contents">
+                <!-- Description Tab -->
+                <div class="tab-content active" id="tab-description">
+                    <div class="product-full-description">
+                        {{ product.description|linebreaks }}
+                    </div>
+                </div>
+                
+                <!-- Specifications Tab -->
+                <div class="tab-content" id="tab-specifications">
+                    <table class="specifications-table">
+                        <tr>
+                            <th>Brand</th>
+                            <td>{{ product.brand.name|default:"Clothix" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Category</th>
+                            <td>{{ product.category.name }}</td>
+                        </tr>
+                        <tr>
+                            <th>SKU</th>
+                            <td>{{ product.sku }}</td>
+                        </tr>
+                        <tr>
+                            <th>Material</th>
+                            <td>Premium Quality</td>
+                        </tr>
+                        <tr>
+                            <th>Care Instructions</th>
+                            <td>Machine wash cold, tumble dry low</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <!-- Reviews Tab -->
+                <div class="tab-content" id="tab-reviews">
+                    {% if reviews %}
+                    <div class="reviews-list">
+                        {% for review in reviews %}
+                        <div class="review-item">
+                            <div class="review-header">
+                                <strong>{{ review.user_name }}</strong>
+                                <div class="review-rating">
+                                    {% for i in "12345"|make_list %}
+                                    {% if forloop.counter <= review.rating %}
+                                    <i class="fas fa-star"></i>
+                                    {% else %}
+                                    <i class="far fa-star"></i>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <span class="review-date">{{ review.created_at|date:"F j, Y" }}</span>
+                            </div>
+                            <p class="review-comment">{{ review.comment }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="no-reviews">No reviews yet. Be the first to review this product!</p>
+                    {% endif %}
+                    
+                    <!-- Write Review Button -->
+                    <button class="write-review-btn">Write a Review</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Related Products -->
+        {% if related_products %}
+        <div class="related-products">
+            <h2 class="section-title">You May Also Like</h2>
+            <div class="products-grid">
+                {% for related in related_products %}
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="{{ related.main_image.url }}" alt="{{ related.name }}">
+                        <div class="product-actions">
+                            <a href="{{ related.get_absolute_url }}" class="quick-view">Quick View</a>
+                            <button class="add-to-cart" data-id="{{ related.id }}">
+                                <i class="fas fa-shopping-bag"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>{{ related.name }}</h3>
+                        <div class="product-price">
+                            <span class="current-price">${{ related.price }}</span>
+                            {% if related.compare_price %}
+                            <span class="original-price">${{ related.compare_price }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Change main image when clicking thumbnail
+    function changeImage(imageUrl) {
+        document.getElementById('mainProductImage').src = imageUrl;
+    }
+    
+    // Quantity selector
+    const qtyInput = document.getElementById('quantity');
+    const minusBtn = document.querySelector('.qty-btn.minus');
+    const plusBtn = document.querySelector('.qty-btn.plus');
+    const maxStock = {{ product.stock }};
+    
+    if (minusBtn && plusBtn) {
+        minusBtn.addEventListener('click', () => {
+            let currentVal = parseInt(qtyInput.value);
+            if (currentVal > 1) {
+                qtyInput.value = currentVal - 1;
+            }
+        });
+        
+        plusBtn.addEventListener('click', () => {
+            let currentVal = parseInt(qtyInput.value);
+            if (currentVal < maxStock) {
+                qtyInput.value = currentVal + 1;
+            }
+        });
+    }
+    
+    // Tab functionality
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tabId = btn.getAttribute('data-tab');
+            
+            tabBtns.forEach(b => b.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            
+            btn.classList.add('active');
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+        });
+    });
+    
+    // Size selection
+    const sizeOptions = document.querySelectorAll('.size-option');
+    sizeOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            sizeOptions.forEach(opt => opt.classList.remove('active'));
+            option.classList.add('active');
+        });
+    });
+    
+    // Add to cart
+    const addToCartBtn = document.querySelector('.add-to-cart-detail');
+    if (addToCartBtn) {
+        addToCartBtn.addEventListener('click', () => {
+            const productId = addToCartBtn.getAttribute('data-id');
+            const quantity = parseInt(qtyInput.value);
+            addToCart(productId, quantity);
+        });
+    }
+    
+    // Update addToCart function to accept quantity
+    window.addToCart = function(productId, quantity = 1) {
+        const cartCount = document.querySelector('.cart-count');
+        let currentCount = parseInt(cartCount.innerText);
+        cartCount.innerText = currentCount + quantity;
+        showNotification('Product added to cart!');
+    };
+    
+    // Wishlist
+    const wishlistBtn = document.querySelector('.wishlist-detail');
+    if (wishlistBtn) {
+        wishlistBtn.addEventListener('click', () => {
+            wishlistBtn.innerHTML = '<i class="fas fa-heart"></i> Added to Wishlist';
+            wishlistBtn.style.background = '#dc3545';
+            showNotification('Added to wishlist!');
+        });
+    }
+</script>
+{% endblock %}

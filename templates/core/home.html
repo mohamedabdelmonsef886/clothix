@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+        <!-- Start Landing Page -->
+        <div class="landing-page">
+            <div class="overlay"></div>
+            <div class="container">
+            </div>
+            <div class="introduction-text">
+                <h1>Discover Your <span>Unique Style</span> With Clothix</h1>
+                <p>Where fashion meets comfort. Explore our curated collection of premium clothing designed to make you look and feel your best every day.</p>
+                <a href="{% url 'products:product_list' %}" class="cta-button">Shop Now →</a>
+            </div>
+        </div>
+        <!-- End Landing Page -->
+        <!-- Start Featured Categories Section -->
+    <!-- Start Featured Categories Section -->
+    <section class="featured-categories">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-subtitle">Shop by Category</span>
+                <h2>Featured Collections</h2>
+                <p>Explore our most popular categories</p>
+            </div>
+            <div class="categories-grid">
+                {% for category in categories %}
+                <div class="category-card">
+                    <div class="category-image">
+                        {% if category.image %}
+                        <img src="{{ category.image.url }}" alt="{{ category.name }}">
+                        {% endif %}
+                        <div class="category-overlay">
+                            <h3>{{ category.name }}</h3>
+                            <a href="{% url 'products:product_list' %}?category={{ category.slug }}" class="category-link">
+                                Shop Now →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    <!-- End Featured Categories Section -->
+    
+    <!-- Start Featured Products Section -->
+    <section class="featured-products">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-subtitle">Best Sellers</span>
+                <h2>Featured Products</h2>
+                <p>Most loved items by our customers</p>
+            </div>
+            <div class="products-grid">
+                {% for product in featured_products %}
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="{{ product.main_image.url }}" alt="{{ product.name }}">
+                        <div class="product-actions">
+                            <button class="quick-view" data-id="{{ product.id }}">Quick View</button>
+                            <button class="add-to-cart" data-id="{{ product.id }}">
+                                <i class="fas fa-shopping-bag"></i>
+                            </button>
+                        </div>
+                        {% if product.discount_percentage > 0 %}
+                        <span class="product-badge sale">-{{ product.discount_percentage }}%</span>
+                        {% elif product.is_new %}
+                        <span class="product-badge new">New</span>
+                        {% elif product.is_bestseller %}
+                        <span class="product-badge bestseller">Best Seller</span>
+                        {% endif %}
+                    </div>
+                    <div class="product-info">
+                        <h3>{{ product.name }}</h3>
+                        <div class="product-price">
+                            <span class="current-price">${{ product.price }}</span>
+                            {% if product.compare_price %}
+                            <span class="original-price">${{ product.compare_price }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p>No featured products available.</p>
+                {% endfor %}
+            </div>
+            <div class="view-all-container">
+                <a href="{% url 'products:product_list' %}" class="btn-outline">View All Products →</a>
+            </div>
+        </div>
+    </section>
+    <!-- End Featured Products Section -->
+    <!-- Start Banner Section -->
+    <section class="promo-banner">
+        <div class="container">
+            <div class="banner-content">
+                <span class="banner-badge">Limited Time Offer</span>
+                <h2>Summer Sale</h2>
+                <p>Up to 50% off on selected items</p>
+                <a href="#" class="btn-primary">Shop Sale →</a>
+            </div>
+        </div>
+    </section>
+    <!-- End Banner Section -->
+    <!-- Start Features Section -->
+    <section class="features">
+        <div class="container">
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-truck-fast"></i>
+                    <h3>Free Shipping</h3>
+                    <p>On orders over $50</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-rotate-left"></i>
+                    <h3>Easy Returns</h3>
+                    <p>30-day return policy</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-lock"></i>
+                    <h3>Secure Payment</h3>
+                    <p>100% secure transactions</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-headset"></i>
+                    <h3>24/7 Support</h3>
+                    <p>Dedicated customer service</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- End Features Section -->
+    <!-- Start Newsletter Section -->
+    <section class="newsletter">
+        <div class="container">
+            <div class="newsletter-content">
+                <h2>Subscribe to Our Newsletter</h2>
+                <p>Get 10% off your first order and exclusive offers</p>
+                <form class="newsletter-form">
+                    <input type="email" placeholder="Enter your email address" required>
+                    <button type="submit">Subscribe</button>
+                </form>
+            </div>
+        </div>
+    </section>
+    <!-- End Newsletter Section -->
+    
+    <!-- Quick View Modal -->
+    <div id="quickViewModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <div id="quickViewContent">
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i> Loading...
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

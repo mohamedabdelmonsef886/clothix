@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shopping Cart - Clothix{% endblock %}
+
+{% block content %}
+<section class="cart-section">
+    <div class="container">
+        <div class="cart-header">
+            <h1>Shopping Cart</h1>
+            <p>{{ cart_total_items }} items in your cart</p>
+        </div>
+
+        {% if cart_items %}
+        <div class="cart-layout">
+            <div class="cart-items">
+                <div class="cart-headers">
+                    <div class="col-product">Product</div>
+                    <div class="col-price">Price</div>
+                    <div class="col-quantity">Quantity</div>
+                    <div class="col-total">Total</div>
+                    <div class="col-remove"></div>
+                </div>
+                
+                {% for item in cart_items %}
+                <div class="cart-item" data-item-id="{{ item.id }}">
+                    <div class="col-product">
+                        <div class="product-info">
+                            <img src="{{ item.product.main_image.url }}" alt="{{ item.product.name }}">
+                            <div>
+                                <h3>{{ item.product.name }}</h3>
+                                {% if item.size %}
+                                <p>Size: {{ item.size }}</p>
+                                {% endif %}
+                                {% if item.color %}
+                                <p>Color: {{ item.color }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-price">${{ item.product.price }}</div>
+                    <div class="col-quantity">
+                        <div class="quantity-control">
+                            <button class="qty-decrease" data-id="{{ item.id }}">-</button>
+                            <input type="number" value="{{ item.quantity }}" min="1" max="99" class="item-qty" data-id="{{ item.id }}">
+                            <button class="qty-increase" data-id="{{ item.id }}">+</button>
+                        </div>
+                    </div>
+                    <div class="col-total">${{ item.total_price|floatformat:2 }}</div>
+                    <div class="col-remove">
+                        <button class="remove-item" data-id="{{ item.id }}">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="cart-summary">
+                <h2>Order Summary</h2>
+                <div class="summary-row">
+                    <span>Subtotal:</span>
+                    <span>${{ subtotal|floatformat:2 }}</span>
+                </div>
+                <div class="summary-row">
+                    <span>Shipping:</span>
+                    <span>{% if shipping == 0 %}Free{% else %}${{ shipping|floatformat:2 }}{% endif %}</span>
+                </div>
+                <div class="summary-row">
+                    <span>Tax (10%):</span>
+                    <span>${{ tax|floatformat:2 }}</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Total:</span>
+                    <span>${{ total|floatformat:2 }}</span>
+                </div>
+                
+                <div class="coupon-section">
+                    <input type="text" placeholder="Coupon code">
+                    <button class="apply-coupon">Apply</button>
+                </div>
+                
+                <a href="{% url 'products:checkout' %}" class="checkout-btn">
+                    Proceed to Checkout
+                </a>                
+                <a href="{% url 'products:product_list' %}" class="continue-shopping">
+                    <i class="fas fa-arrow-left"></i> Continue Shopping
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <div class="empty-cart">
+            <i class="fas fa-shopping-bag"></i>
+            <h2>Your cart is empty</h2>
+            <p>Looks like you haven't added any items to your cart yet.</p>
+            <a href="{% url 'products:product_list' %}" class="shop-now-btn">Shop Now</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    // Update cart item quantity
+    function updateQuantity(itemId, quantity) {
+        fetch('/products/cart/update/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: `item_id=${itemId}&quantity=${quantity}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.cart_total !== undefined) {
+                location.reload();
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    
+    // Remove item from cart
+    function removeItem(itemId) {
+        if (confirm('Remove this item from cart?')) {
+            fetch('/products/cart/remove/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: `item_id=${itemId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.cart_total !== undefined) {
+                    location.reload();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    }
+    
+    // Quantity decrease buttons
+    document.querySelectorAll('.qty-decrease').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const itemId = this.getAttribute('data-id');
+            const input = document.querySelector(`.item-qty[data-id="${itemId}"]`);
+            let currentVal = parseInt(input.value);
+            if (currentVal > 1) {
+                input.value = currentVal - 1;
+                updateQuantity(itemId, currentVal - 1);
+            }
+        });
+    });
+    
+    // Quantity increase buttons
+    document.querySelectorAll('.qty-increase').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const itemId = this.getAttribute('data-id');
+            const input = document.querySelector(`.item-qty[data-id="${itemId}"]`);
+            let currentVal = parseInt(input.value);
+            if (currentVal < 99) {
+                input.value = currentVal + 1;
+                updateQuantity(itemId, currentVal + 1);
+            }
+        });
+    });
+    
+    // Manual quantity input change
+    document.querySelectorAll('.item-qty').forEach(input => {
+        input.addEventListener('change', function() {
+            const itemId = this.getAttribute('data-id');
+            let newVal = parseInt(this.value);
+            if (isNaN(newVal) || newVal < 1) {
+                newVal = 1;
+                this.value = 1;
+            }
+            if (newVal > 99) {
+                newVal = 99;
+                this.value = 99;
+            }
+            updateQuantity(itemId, newVal);
+        });
+    });
+    
+    // Remove item buttons
+    document.querySelectorAll('.remove-item').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const itemId = this.getAttribute('data-id');
+            removeItem(itemId);
+        });
+    });
+</script>
+{% endblock %}

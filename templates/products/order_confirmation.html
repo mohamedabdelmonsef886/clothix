@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order Confirmation - Clothix{% endblock %}
+
+{% block content %}
+<section class="confirmation-section">
+    <div class="container">
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <div class="confirmation-card">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h1>Thank You for Your Order!</h1>
+            {% if order.payment_status == 'paid' %}
+            <div class="payment-status paid">
+                <i class="fas fa-check-circle"></i> Payment Successful
+            </div>
+            {% else %}
+            <div class="payment-status pending">
+                <i class="fas fa-clock"></i> Payment pending (Cash on Delivery)
+            </div>
+            {% endif %}
+            <p>Your order has been placed successfully.</p>
+            
+            <div class="order-info">
+                <div class="info-row">
+                    <span>Order Number:</span>
+                    <strong>{{ order.order_number }}</strong>
+                </div>
+                <div class="info-row">
+                    <span>Order Date:</span>
+                    <strong>{{ order.created_at|date:"F j, Y" }}</strong>
+                </div>
+                <div class="info-row">
+                    <span>Payment Method:</span>
+                    <strong>{{ order.get_payment_method_display }}</strong>
+                </div>
+                <div class="info-row">
+                    <span>Order Status:</span>
+                    <strong class="status">{{ order.get_status_display }}</strong>
+                </div>
+            </div>
+            
+            <div class="order-summary-confirm">
+                <h3>Order Summary</h3>
+                {% for item in order_items %}
+                <div class="order-item-confirm">
+                    <span>{{ item.product.name }} x {{ item.quantity }}</span>
+                    <span>${{ item.total|floatformat:2 }}</span>
+                </div>
+                {% endfor %}
+                <div class="order-total">
+                    <span>Total Paid:</span>
+                    <strong>${{ order.total|floatformat:2 }}</strong>
+                </div>
+            </div>
+            
+            <div class="shipping-info">
+                <h3>Shipping Address</h3>
+                <p>
+                    {{ order.first_name }} {{ order.last_name }}<br>
+                    {{ order.address }}<br>
+                    {{ order.city }}, {{ order.state }} {{ order.zip_code }}<br>
+                    {{ order.country }}<br>
+                    Phone: {{ order.phone }}<br>
+                    Email: {{ order.email }}
+                </p>
+            </div>
+            
+            <div class="confirmation-actions">
+                <a href="{% url 'products:my_orders' %}" class="my-orders-btn">
+                    View My Orders
+                </a>
+                <a href="{% url 'products:product_list' %}" class="continue-shopping-btn">
+                    Continue Shopping
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

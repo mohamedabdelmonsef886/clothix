@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard - Clothix{% endblock %}
+
+{% block content %}
+<section class="admin-section">
+    <div class="container">
+        <div class="admin-header">
+            <h1>Admin Dashboard</h1>
+            <p>Welcome back, {{ request.user.username }}</p>
+        </div>
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-box"></i>
+                <h3>{{ total_products }}</h3>
+                <p>Total Products</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-shopping-cart"></i>
+                <h3>{{ total_orders }}</h3>
+                <p>Total Orders</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-tags"></i>
+                <h3>{{ total_categories }}</h3>
+                <p>Categories</p>
+            </div>
+            <div class="stat-card warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>{{ low_stock }}</h3>
+                <p>Low Stock Items</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-envelope"></i>
+                <h3>{{ unread_messages }}</h3>
+                <p>Unread Messages</p>
+            </div>
+        </div>
+
+        <div class="admin-actions">
+            <a href="{% url 'products:admin_products' %}" class="admin-btn">
+                <i class="fas fa-boxes"></i> Manage Products
+            </a>
+            <a href="{% url 'products:admin_product_add' %}" class="admin-btn primary">
+                <i class="fas fa-plus"></i> Add New Product
+            </a>
+        </div>
+
+        <div class="recent-products">
+            <h2>Recent Products</h2>
+            <div class="products-grid">
+                {% for product in products %}
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="{{ product.main_image.url }}" alt="{{ product.name }}">
+                    </div>
+                    <div class="product-info">
+                        <h3>{{ product.name }}</h3>
+                        <p class="price">${{ product.price }}</p>
+                        <p class="stock">Stock: {{ product.stock }}</p>
+                        <div class="product-actions">
+                            <a href="{% url 'products:admin_product_edit' product.id %}" class="edit-btn">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="recent-messages">
+            <h2>Recent Messages</h2>
+            {% for msg in recent_messages %}
+            <div class="message-item">
+                <strong>{{ msg.name }}</strong> - {{ msg.subject }}
+                <p>{{ msg.message|truncatewords:10 }}</p>
+                <small>{{ msg.created_at|date:"M d, Y" }}</small>
+            </div>
+            {% empty %}
+            <p>No messages yet.</p>
+            {% endfor %}
+            <a href="/admin/products/contactmessage/" class="view-all">View All Messages →</a>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

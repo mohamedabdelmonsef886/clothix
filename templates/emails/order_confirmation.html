@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Order Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: #000;
+            color: #c6a43f;
+            padding: 20px;
+            text-align: center;
+        }
+        .content {
+            padding: 20px;
+            background: #f9f9f9;
+        }
+        .order-details {
+            background: white;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .order-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .total {
+            font-size: 18px;
+            font-weight: bold;
+            color: #c6a43f;
+            text-align: right;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #c6a43f;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: #999;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #c6a43f;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Clothix</h1>
+            <h2>Order Confirmation</h2>
+        </div>
+        
+        <div class="content">
+            <p>Dear {{ order.first_name }} {{ order.last_name }},</p>
+            <p>Thank you for your order! Your order has been received and is being processed.</p>
+            
+            <div class="order-details">
+                <h3>Order Details</h3>
+                <p><strong>Order Number:</strong> {{ order.order_number }}</p>
+                <p><strong>Order Date:</strong> {{ order.created_at|date:"F j, Y, g:i a" }}</p>
+                <p><strong>Payment Method:</strong> {{ order.get_payment_method_display }}</p>
+                
+                <h3>Items Ordered</h3>
+                {% for item in order_items %}
+                <div class="order-item">
+                    <strong>{{ item.product.name }}</strong> x {{ item.quantity }} = ${{ item.total|floatformat:2 }}
+                </div>
+                {% endfor %}
+                
+                <div class="total">
+                    Total: ${{ order.total|floatformat:2 }}
+                </div>
+            </div>
+            
+            <div class="order-details">
+                <h3>Shipping Address</h3>
+                <p>
+                    {{ order.first_name }} {{ order.last_name }}<br>
+                    {{ order.address }}<br>
+                    {{ order.city }}, {{ order.state }} {{ order.zip_code }}<br>
+                    {{ order.country }}<br>
+                    Phone: {{ order.phone }}
+                </p>
+            </div>
+            
+            <p>We'll notify you once your order ships.</p>
+            
+            <a href="http://{{ domain }}/products/" class="button">Continue Shopping</a>
+        </div>
+        
+        <div class="footer">
+            <p>&copy; 2026 Clothix. All rights reserved.</p>
+            <p>If you have any questions, contact us at support@clothix.com</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete Product - Admin{% endblock %}
+
+{% block content %}
+<section class="admin-section">
+    <div class="container">
+        <div class="delete-card">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h2>Confirm Delete</h2>
+            <p>Are you sure you want to delete <strong>"{{ product.name }}"</strong>?</p>
+            <p class="warning">This action cannot be undone!</p>
+            
+            <form method="POST">
+                {% csrf_token %}
+                <div class="delete-actions">
+                    <button type="submit" class="confirm-delete-btn">
+                        <i class="fas fa-trash"></i> Yes, Delete
+                    </button>
+                    <a href="{% url 'products:admin_products' %}" class="cancel-delete-btn">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

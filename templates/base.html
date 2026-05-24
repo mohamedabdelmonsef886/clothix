@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Clothix</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+        <!-- Font Awesome 6 (CDN الرسمي) -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    
+        <!-- Google Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'css/normalize.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script defer src="{% static 'js/main.js' %}"></script>
+</head>
+
+<body>
+
+<!-- 🔝 Navbar -->
+<header class="navbar">
+    <div class="nav-container">
+
+        <!-- Logo -->
+        <div class="logo">Clothix</div>
+
+        <!-- Links -->
+        <nav class="nav-links">
+            <ul>
+                <a href="/" class="nav-link">Home</a>
+                <a href="/products/" class="nav-link">products</a>
+                <a href="/products/my-orders/" class="nav-link">My Orders</a>
+                <a href="/products/cart/" class="nav-link">Cart</a>
+                <a href="/products/contact/" class="nav-link">Contact</a>
+                {% if request.user.is_staff %}
+                <a href="/products/admin/dashboard/" class="nav-link">Admin</a>
+                {% endif %}
+            </ul>
+        </nav>
+
+        <!-- Icons -->
+        <div class="nav-icons">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <a href="{% url 'products:cart_detail' %}" class="icon-btn cart-icon">
+                <i class="fas fa-shopping-bag"></i>
+                <span class="cart-count">{{ cart_total_items|default:0 }}</span>
+            </a>
+        </div>
+
+    </div>
+</header>
+
+<!-- 🧩 Dynamic Content -->
+<main>
+    {% block content %}
+    {% endblock %}
+</main>
+
+<!-- 🔻 Footer -->
+<footer class="footer">
+    <p>© 2026 Clothix. All rights reserved.</p>
+</footer>
+
+</body>
+</html>
